@@ -5,8 +5,9 @@ __lua__
 
 #include util/sprite_rotation.p8
 #include util/vec.p8
-#include drone/levels_sample.p8
-#include drone/drone_init.p8
+#include drone/actor.p8
+#include drone/levels.p8
+#include drone/init.p8
 __gfx__
 000000002222222244444444bbbbbbbb00000000000aa000d7777777d66667d666666667d6666667cccccccccccccccccc5ccccccc5cccc5f777777767766666
 0000000022222222444444443333333300000000000990002eeeeeef5d66765d666666765d666676ccccccccccccccc5c55555ccc5555555effffff7d6766666
