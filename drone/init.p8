@@ -20,6 +20,7 @@ function nop() end
 function make_thrust(level_max, acc, release_acc)
   return {
     level=0,
+    level_max=level_max,
     push=function(t)
       t.level = mid(0, level_max, t.level + acc)
     end,
@@ -29,11 +30,14 @@ function make_thrust(level_max, acc, release_acc)
   }
 end
 
-function make_rotation(rotate_step)
+function make_rotation(rotate_step, minr, maxr)
   rotate_step = rotate_step or 0.01
   return {
     a=0,
-    rotate=function(r, dir) r.a += sgn(dir) * rotate_step end,
+    rotate=function(r, dir)
+      r.a = mid((minr or -1), (maxr or 1),
+                r.a + sgn(dir) * rotate_step)
+    end,
     rotate_y=function(r,y)
       return vec2_rotate(r.a, 0, y)
     end
@@ -75,13 +79,26 @@ function _init()
   --   end
   -- }
 
+  drone_sfx = {
+    low_thrust=function()
+      sfx(1, 0)
+    end,
+    high_thrust=function()
+      sfx(1, 0)
+    end,
+    release=function()
+      -- sfx(0, -2)
+      sfx(1, -2)
+    end
+  }
+
   player = {
     x=7, y=9,
     dx = 0, dy = 0,
     -- ddx = 0.02, -- move acc
-    gravity = 0.06,
-    thrust=make_thrust(0.2, 0.017, 0.02),
-    rotation = make_rotation(0.03),
+    gravity = 0.04,
+    thrust=make_thrust(0.1, 0.009, 0.009),
+    rotation = make_rotation(0.01, -0.10, 0.10),
     s = 42,
     friction=0.9,
     bounce = 0.8,
@@ -100,8 +117,10 @@ function _init()
     name="idle",
     s=42,
     p=player,
+    drone_sfx=drone_sfx,
     draw=function(st)
       local p = st.p
+      camera(cam.x, cam.y)
       spr_r(st.s, p.x*8-4, p.y*8-8, p.rotation.a)
     end,
     handle_inputs=function(st)
@@ -118,8 +137,14 @@ function _init()
     update=function(st)
       local p = st.p
       if p.thrust.level > 0 then
+        if (p.thrust.level / p.thrust.level_max) > 0.3 then
+          st.drone_sfx:high_thrust()
+        else
+          st.drone_sfx:low_thrust()
+        end
         p.state = player_flying_state
       else
+        st.drone_sfx:release()
         p.state = player_idle_state
       end
     end,
@@ -140,7 +165,8 @@ function _update()
   player.state:update()
   player.state:move()
 
-  text.info.rotation_a = player.rotation.a
+  text.info.player_x = player.x
+  text.info.cam_x = cam.x
   cam:move()
   text:update()
 end
@@ -149,12 +175,14 @@ function _draw()
   cls()
   camera()
 
-  levels:draw()
+  for pass=0,1 do
+    levels:draw()
+    camera(cam.x, cam.y)
+    map()
+    player.state:draw()
+  end
 
   pal()
-  camera(cam.x, cam.y)
-  map()
 
-  player.state:draw()
   text:draw()
 end

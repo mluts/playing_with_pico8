@@ -31,9 +31,6 @@ function acc_actor(a)
 end
 
 function move_actor(a)
-  -- candidate position
-  -- local x1 = a.x + a.dx + sgn(a.dx)/4
-  -- local x1 = a.x + a.dx + sgn(a.dx)/4
   local x1 = a.x + a.dx + sgn(a.dx)/2
 
   if not solid(x1, a.y-0.5) then
