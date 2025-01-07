@@ -1,5 +1,5 @@
 function solid(x, y, ignore)
-  if (x < 0 or x >= 128 ) then return true end
+  if (x < 0 or x >= 128 or y < 0) then return true end
 
   local val = mget(x,y)
 
@@ -16,7 +16,7 @@ function acc_actor(a)
   local ddx, ddy = 0, a.gravity
 
   if (a.thrust and a.rotation) then
-    local tddx, tddy = a.rotation:rotate_y(a.thrust.level)
+    local tddx, tddy = a.rotation:vec_rotate_y(a.thrust.level)
     ddx += tddx
     ddy += tddy
   elseif a.thrust then
